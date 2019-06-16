@@ -47,3 +47,7 @@ for post in posts:
 def get_posts():
     return postList
 
+def get_post():
+    if (postList.__len__() > 0):
+        return postList[0]
+
