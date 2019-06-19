@@ -1,5 +1,7 @@
 import feedparser
 import re
+import requests
+from bs4 import BeautifulSoup
 
 rss_url = "https://www.index.hr/rss/vijesti"
 postList = []
@@ -32,16 +34,26 @@ def get_keywords(title):
     
     return ','.join(clean)
 
-for post in posts:
+def get_article_text(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+    tag = soup.find("div", {"class": "text"})
+    ad = soup.find("div", id="dfp-DIA-container")
+    ad.decompose()
+    
+    return str(tag)
+
+for post in posts[0:5]:
     match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
     beginning = match.span()[0]
     end = match.span()[1]
 
     postList.append({
         "title":post['title'],
-        "text":match.string[end+4:],
+        "summary":match.string[end+4:],
         "image":match.string[beginning:end],
-        "keywords":get_keywords(post['title'])
+        "keywords":get_keywords(post['title']),
+        "text":get_article_text(post['link'])
         }) 
 
 def get_posts():
