@@ -2,11 +2,11 @@ import requests
 import scraper
 import time
 
-URL = "https://localhost:44326/api/postNews"
+URL = "http://localhost/api/postNews"
 
-#posts = scraper.get_posts()
-#
-#for post in posts:
+# posts = scraper.get_posts()
+
+# for post in posts:
 #    requests.post(URL, json=post, verify=False)
 
 lastPost = scraper.get_post()
@@ -18,14 +18,16 @@ def main_loop():
     post = scraper.get_post()
     
     if (post != None):
-        if (post != lastPost or firstRun == True):
-            lastPost = post
-            print(post['title'])
-
+        if (post['title'] != lastPost['title'] or firstRun == True):
+            if (post['text'] != None):
+                lastPost = post
+                print(post['title'])
+                requests.post(URL, json=post, verify=False)
+        
     if (firstRun == True):
         firstRun = False
 
-timer = 5
+timer = 30
 lastRan = time.mktime(time.localtime())
 
 while(True):

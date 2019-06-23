@@ -7,6 +7,8 @@ rss_url = "https://www.index.hr/rss/vijesti"
 postList = []
 posts = feedparser.parse(rss_url).entries
 
+print('Starting index.hr scraping script...')
+
 def word_valid(word):
     if (len(word) < 4):
         return False
@@ -35,31 +37,48 @@ def get_keywords(title):
     return ','.join(clean)
 
 def get_article_text(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    tag = soup.find("div", {"class": "text"})
-    ad = soup.find("div", id="dfp-DIA-container")
-    ad.decompose()
-    
-    return str(tag)
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, "html.parser")
+        tag = soup.find("div", {"class": "text"})
+        ad = soup.find("div", id="dfp-DIA-container")
+        ad.decompose()
+        
+        return str(tag)
+    except:
+        print('Error parsing ' + url)
+        return None
 
-for post in posts[0:5]:
-    match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
-    beginning = match.span()[0]
-    end = match.span()[1]
+def populate_posts():
+    for post in posts[0:1]:
+        match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
+        beginning = match.span()[0]
+        end = match.span()[1]
 
-    postList.append({
-        "title":post['title'],
-        "summary":match.string[end+4:],
-        "image":match.string[beginning:end],
-        "keywords":get_keywords(post['title']),
-        "text":get_article_text(post['link'])
-        }) 
+        postList.append({
+            "title":post['title'],
+            "summary":match.string[end+4:],
+            "image":match.string[beginning:end],
+            "keywords":get_keywords(post['title']),
+            "text":get_article_text(post['link'])
+            }) 
 
 def get_posts():
     return postList
 
 def get_post():
-    if (postList.__len__() > 0):
-        return postList[0]
+    posts = feedparser.parse(rss_url).entries
+    if (posts.__len__() > 0):
+        post = posts[0]
+        match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
+        beginning = match.span()[0]
+        end = match.span()[1]
+
+        return {
+            "title":post['title'],
+            "summary":match.string[end+4:],
+            "image":match.string[beginning:end],
+            "keywords":get_keywords(post['title']),
+            "text":get_article_text(post['link'])
+        } 
 
