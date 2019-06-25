@@ -4,8 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 
 rss_url = "https://www.index.hr/rss/vijesti"
-postList = []
-posts = feedparser.parse(rss_url).entries
 
 print('Starting index.hr scraping script...')
 
@@ -49,22 +47,20 @@ def get_article_text(url):
         print('Error parsing ' + url)
         return None
 
-def populate_posts():
+def get_posts():
+    posts = feedparser.parse(rss_url).entries
     for post in posts[0:1]:
         match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
         beginning = match.span()[0]
         end = match.span()[1]
 
-        postList.append({
+        return {
             "title":post['title'],
             "summary":match.string[end+4:],
             "image":match.string[beginning:end],
             "keywords":get_keywords(post['title']),
             "text":get_article_text(post['link'])
-            }) 
-
-def get_posts():
-    return postList
+        }
 
 def get_post():
     posts = feedparser.parse(rss_url).entries
