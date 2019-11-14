@@ -41,10 +41,17 @@ def get_article_text(url):
         tag = soup.find("div", {"class": "text"})
         ad = soup.find("div", id="dfp-DIA-container")
         ad.decompose()
+        paragraphs = tag.find_all('p')
+        global paragraphs_text
+        paragraphs_text = ""
+
+        for p in paragraphs:
+            paragraphs_text = paragraphs_text + p.text + " "
         
-        return str(tag)
-    except:
+        return paragraphs_text
+    except Exception as e:
         print('Error parsing ' + url)
+        print(str(e))
         return None
 
 def get_posts():
@@ -69,9 +76,12 @@ def get_post():
         match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
         beginning = match.span()[0]
         end = match.span()[1]
+        guid = post['guid'] 
+        trimmed_guid = guid[guid.find('=') + 1:]
 
         return {
             "title":post['title'],
+            "guid":trimmed_guid,
             "summary":match.string[end+4:],
             "image":match.string[beginning:end],
             "keywords":get_keywords(post['title']),
