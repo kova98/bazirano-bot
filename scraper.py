@@ -72,7 +72,7 @@ def get_posts():
 def get_post():
     posts = feedparser.parse(rss_url).entries
     if (posts.__len__() > 0):
-        post = posts[0]
+        post = posts[posts.__len__() - 1]
         match = re.search("(?<=src=\").*?(?=\")", post['summary'])   
         beginning = match.span()[0]
         end = match.span()[1]
