@@ -4,8 +4,8 @@ import time
 from summarizer import summarize
 import summarizer
 
-URL = "http://localhost/api/postNews"
-#URL = "https://localhost:44326/api/postNews"
+#URL = "http://localhost/api/postNews"
+URL = "https://localhost:44326/api/postNews"
 
 lastPost = scraper.get_post()
 firstRun = True
@@ -16,6 +16,7 @@ def main_loop():
     post = scraper.get_post()
 
     if (post != None):
+        # Make sure the post is not a duplicate of the last one
         if (post['guid'] != lastPost['guid'] or firstRun == True):
             if (post['text'] != None):
                 summarized_text = summarize(post['title'], post['text'], 7)
